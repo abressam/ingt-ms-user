@@ -1,17 +1,9 @@
-import { SequelizeModuleOptions } from '@nestjs/sequelize';
+import { MongooseModuleOptions } from '@nestjs/mongoose';
 
-const { DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME } = process.env;
+const { DB_HOST, DB_PORT, DB_NAME } = process.env;
 
-const dbConfig: SequelizeModuleOptions = {
-  dialect: 'mariadb',
-  host: DB_HOST,
-  port: parseInt(DB_PORT, 10) || 3306,
-  username: DB_USER,
-  password: DB_PASS,
-  database: DB_NAME,
-  autoLoadModels: true,
-  synchronize: true,
-  logging: false,
+const dbConfig: MongooseModuleOptions = {
+  uri: `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`
 };
 
 export default dbConfig;
