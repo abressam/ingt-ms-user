@@ -6,7 +6,7 @@ export class User extends Document {
    @Prop({ type: String, required: true, index: true })
    uuid: string;   
    
-   @Prop({ type: String, required: true })
+   @Prop({ type: String, required: true, unique: true })
    cpfCnpj: string;   
    
    @Prop({ type: String, required: true })
@@ -26,6 +26,9 @@ export class User extends Document {
 
    @Prop({ type: String, default: null })
    crp: string | null;
+
+   @Prop({ type: Number, default: null })
+   pacientId: number | null;
 
    @Prop({ type: String, required: true })
    password: string;

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, IsDateString, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class UserDto {
     @ApiProperty()
@@ -24,11 +24,15 @@ export class UserDto {
     email: string;
 
     @ApiProperty()
-    @IsString()
+    @IsDateString()
     @IsNotEmpty()
     birthdate: string;
 
     @ApiProperty()
     @IsString()
     crp: string;
+
+    @ApiProperty()
+    @IsNumber()
+    pacientId: number;
 }

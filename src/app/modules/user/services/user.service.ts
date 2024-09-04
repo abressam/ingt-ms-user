@@ -11,6 +11,7 @@ import { UserDto } from '@app/modules/user/dtos/user.dto';
 import { User } from '@app/modules/user/models/user.model';
 import { encodePassword } from '@app/modules/session/utils/session.util';
 import { v4 as uuidv4 } from 'uuid';
+import { generatePacientId } from '@app/modules/user/utils/user.utils'; 
 
 @Injectable()
 export class UserService implements UserServiceInterface {
@@ -35,13 +36,21 @@ export class UserService implements UserServiceInterface {
 
   async postUser(body: PostUserReqDto): Promise<GetUserResDto> {
     const salt = this.configService.get('auth.salt');
+    let pacientId = null;
+
+    await this.checkCpfCnpjExists(body.cpfCnpj);
 
     if (body.password) {
       body.password = encodePassword(salt, body.password);
     }
 
+    if (!body.crp) {
+      pacientId = generatePacientId(body.cpfCnpj);
+    }
+
     const createdUser = new this.userModel({
       ...body,
+      pacientId,
       uuid: uuidv4(), // generate a uuid
     });
     
@@ -56,10 +65,10 @@ export class UserService implements UserServiceInterface {
         phone: user.phone,
         email: user.email,
         birthdate: user.birthdate,
-        crp: user.crp
+        crp: user.crp,
+        pacientId: user.pacientId
       },
     };
-    
   }
 
 
@@ -82,10 +91,8 @@ export class UserService implements UserServiceInterface {
         { uuid: userUuid },
         {
           $set: {
-              name: userNew.name,
               address: userNew.address,
               phone: userNew.phone,
-              email: userNew.email,
               password: userNew.password,               
           }
         }
@@ -98,7 +105,8 @@ export class UserService implements UserServiceInterface {
         phone: userNew.phone,
         email: userNew.email,
         birthdate: userNew.birthdate,
-        crp: userNew.crp
+        crp: userNew.crp,
+        pacientId: userNew.pacientId
       },
     };
   }
@@ -127,6 +135,13 @@ export class UserService implements UserServiceInterface {
   private validateAuth(userUuid: string) {
     if (!userUuid) {
       throw new HttpException('Invalid session', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  private async checkCpfCnpjExists(cpfCnpj: string) {
+    const existingUser = await this.userModel.findOne({ cpfCnpj }).exec();
+    if (existingUser) {
+      throw new HttpException('CPF/CNPJ alreay registered', HttpStatus.BAD_REQUEST);
     }
   }
 
