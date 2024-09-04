@@ -31,13 +31,17 @@ export class SessionService implements SessionServiceInterface {
         crp: body.crp,
         password: encodePassword(salt, body.password),
       }).exec();
-    }
-
-    if (!user && body.email) {
+    } else if (body.email) {
       user = await this.userModel.findOne({
         email: body.email,
         password: encodePassword(salt, body.password),
       }).exec();
+  
+      // Verifica se o usuário encontrado possui um crp associado
+      if (user && user.crp) {
+        // Bloqueia o login via email se o crp estiver presente
+        throw new HttpException('Use CRP for login', HttpStatus.UNAUTHORIZED);
+      }
     }
 
     // console.log('Password Hash:', encodePassword(salt, body.password));

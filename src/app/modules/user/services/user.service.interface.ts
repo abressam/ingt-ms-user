@@ -6,6 +6,6 @@ import { PostUserReqDto } from '../dtos/requests/post-user-req.dto';
 export interface UserServiceInterface {
   getUser(userUuid: string): Promise<GetUserResDto>;
   postUser(body: PostUserReqDto): Promise<GetUserResDto>
-  putUser(uuid: string, body: PutUserReqDto): Promise<GetUserResDto>;
-  deleteUser(uuid: string): Promise<DeleteUserResDto>;
+  putUser(userUuid: string, body: PutUserReqDto): Promise<GetUserResDto>;
+  deleteUser(userUuid: string): Promise<DeleteUserResDto>;
 }

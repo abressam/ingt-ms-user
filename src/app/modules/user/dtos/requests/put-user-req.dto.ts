@@ -15,10 +15,5 @@ export class PutUserReqDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  email?: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
   password?: string;
 }
