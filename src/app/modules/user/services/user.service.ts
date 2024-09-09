@@ -48,13 +48,23 @@ export class UserService implements UserServiceInterface {
       pacientId = generatePacientId(body.cpfCnpj);
     }
 
-    if(body.birthdate) {
+    if (body.birthdate) {
       isoBirthdate = convertToISODate(body.birthdate);
+
+      if (!isoBirthdate) {
+        throw new HttpException('Invalid birthdate format. Please use DD-MM-YYYY.', HttpStatus.BAD_REQUEST);
+      }
     }
 
     const createdUser = new this.userModel({
-      ...body,
+      cpfCnpj: body.cpfCnpj,
+      name: body.name,
+      address: body.address,
+      phone: body.phone,
+      email: body.email,
+      crp: body.crp,
       birthdate: isoBirthdate,
+      password: body.password,
       pacientId,
       uuid: generateUuid(body.cpfCnpj), // generate a uuid
     });
