@@ -10,8 +10,7 @@ import { PutUserReqDto } from '@app/modules/user/dtos/requests/put-user-req.dto'
 import { UserDto } from '@app/modules/user/dtos/user.dto';
 import { User } from '@app/modules/user/models/user.model';
 import { encodePassword } from '@app/modules/session/utils/session.util';
-import { v4 as uuidv4 } from 'uuid';
-import { generatePacientId } from '@app/modules/user/utils/user.utils'; 
+import { generatePacientId, generateUuid, convertToISODate } from '@app/modules/user/utils/user.util'; 
 
 @Injectable()
 export class UserService implements UserServiceInterface {
@@ -37,6 +36,7 @@ export class UserService implements UserServiceInterface {
   async postUser(body: PostUserReqDto): Promise<GetUserResDto> {
     const salt = this.configService.get('auth.salt');
     let pacientId = null;
+    let isoBirthdate = null;
 
     await this.checkCpfCnpjExists(body.cpfCnpj);
 
@@ -48,10 +48,15 @@ export class UserService implements UserServiceInterface {
       pacientId = generatePacientId(body.cpfCnpj);
     }
 
+    if(body.birthdate) {
+      isoBirthdate = convertToISODate(body.birthdate);
+    }
+
     const createdUser = new this.userModel({
       ...body,
+      birthdate: isoBirthdate,
       pacientId,
-      uuid: uuidv4(), // generate a uuid
+      uuid: generateUuid(body.cpfCnpj), // generate a uuid
     });
     
     const savedUser = await createdUser.save();

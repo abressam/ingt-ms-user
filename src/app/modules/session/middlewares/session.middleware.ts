@@ -24,9 +24,10 @@ import {
         const secret = this.configService.get('auth.secret');
         const jwtPayload = checkJsonWebToken(token, secret);
   
-        req['userUuid'] = jwtPayload['userUuid'];
+        req['cpfCnpj'] = jwtPayload['cpfCnpj'];
         req['crp'] = jwtPayload['crp'];
-  
+        req['pacientId'] = jwtPayload['pacientId'];
+
         next();
       } catch (error) {
         logger.error(error);

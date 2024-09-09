@@ -2,11 +2,12 @@ import { sign, verify, JwtPayload, Secret } from 'jsonwebtoken';
 import * as Crypto from 'crypto';
 
 export function getJsonWebToken(
-  userUuid: string,
+  cpfCnpj: string,
   crp: string | null,
+  pacientId: number,
   secret: Secret,
 ): string {
-  return sign({ userUuid, crp }, secret, { expiresIn: '1d' });
+  return sign({ cpfCnpj, crp, pacientId }, secret, { expiresIn: '1d' });
 }
 
 export function checkJsonWebToken(

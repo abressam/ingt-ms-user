@@ -1,38 +1,46 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsDateString, IsOptional, IsEmail, IsNumber } from 'class-validator';
+import { IsString, IsDateString, IsOptional, IsEmail, IsNotEmpty } from 'class-validator';
 
 export class PostUserReqDto {
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     cpfCnpj: string;
 
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     name: string;
   
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     address: string;
   
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     phone: string;
   
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
     @IsEmail()
+    @IsNotEmpty()
+    @IsNotEmpty()
     email: string;
 
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsDateString()
+    @IsNotEmpty()
     birthdate: string;
 
-    @ApiProperty({ required: false })
+    @ApiProperty()
     @IsOptional()
     @IsString()
     crp: string | null;
   
-    @ApiProperty({ required: true })
+    @ApiProperty()
     @IsString()
+    @IsNotEmpty()
     password: string;
 }
