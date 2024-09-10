@@ -3,7 +3,7 @@ import { v5 as uuidv5 } from 'uuid';
 
 const { USER_NAMESPACE } = process.env;
 
-export function generatePacientId(cpfCnpj: string): number {
+export function generatepatientId(cpfCnpj: string): number {
     // Create SHA-256 hash from cpfCnpj
     const hash = Crypto.createHash('sha256').update(cpfCnpj).digest('hex');
     

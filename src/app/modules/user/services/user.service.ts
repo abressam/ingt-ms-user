@@ -5,12 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DeleteUserResDto } from '@app/modules/user/dtos/responses/delete-user-res.dto';
 import { GetUserResDto } from '@app/modules/user/dtos/responses/get-user-res.dto';
+import { GetUsersByCrpResDto } from '@app/modules/user/dtos/responses/get-users-by-crp-res.dto';
+import { GetUsersByPatientIdResDto } from '@app/modules/user/dtos/responses/get-users-by-patientId-res.dto';
 import { PostUserReqDto } from '@app/modules/user/dtos/requests/post-user-req.dto';
 import { PutUserReqDto } from '@app/modules/user/dtos/requests/put-user-req.dto';
 import { UserDto } from '@app/modules/user/dtos/user.dto';
 import { User } from '@app/modules/user/models/user.model';
 import { encodePassword } from '@app/modules/session/utils/session.util';
-import { generatePacientId, generateUuid, convertToISODate } from '@app/modules/user/utils/user.util'; 
+import { generatepatientId, generateUuid, convertToISODate } from '@app/modules/user/utils/user.util'; 
 
 @Injectable()
 export class UserService implements UserServiceInterface {
@@ -20,22 +22,52 @@ export class UserService implements UserServiceInterface {
     private readonly configService: ConfigService,
   ) {}
 
-  async getUser(userUuid: string): Promise<GetUserResDto> {
-    this.validateAuth(userUuid);
+  async getUser(user: string): Promise<GetUserResDto> {
+    this.validateAuth(user);
 
-    const user = await this.userModel.findOne({ uuid: userUuid }).select('-password -cpfCnpj').exec(); 
+    const userObject = await this.userModel.findOne({ cpfCnpj: user }).select('-password -cpfCnpj').exec(); 
     // execute query and return a promise
 
     // console.log('user:', user);
 
-    this.validateUser(user);
+    this.validateUser(userObject);
 
-    return { user };
+    return { user: userObject };
+  }
+
+  async getUsersByCrp(): Promise<GetUsersByCrpResDto> {
+    const users = await this.userModel
+      .find({ crp: { $ne: null } })
+      .select('-password -cpfCnpj')
+      .exec()
+
+      return { user: users.map(user => ({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        crp: user.crp,
+      })) };
+  }
+
+  async getUsersByPatientId(user: string, responsibleCrp: string): Promise<GetUsersByPatientIdResDto> {
+    this.validateAuth(user);
+
+    const users = await this.userModel
+      .find({ responsibleCrp })
+      .select('-password -cpfCnpj')
+      .exec()
+
+      return { user: users.map(user => ({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        patientId: user.patientId,
+      })) };
   }
 
   async postUser(body: PostUserReqDto): Promise<GetUserResDto> {
     const salt = this.configService.get('auth.salt');
-    let pacientId = null;
+    let patientId = null;
     let isoBirthdate = null;
 
     await this.checkCpfCnpjExists(body.cpfCnpj);
@@ -44,8 +76,18 @@ export class UserService implements UserServiceInterface {
       body.password = encodePassword(salt, body.password);
     }
 
+    if (body.crp) {
+      await this.checkCrpExists(body.crp);
+    } 
+    
     if (!body.crp) {
-      pacientId = generatePacientId(body.cpfCnpj);
+
+      const crpExists = await this.userModel.exists({ crp: body.responsibleCrp });
+      if (!crpExists) {
+        throw new HttpException('CRP not found in the system.', HttpStatus.BAD_REQUEST);
+      }
+
+      patientId = generatepatientId(body.cpfCnpj);
     }
 
     if (body.birthdate) {
@@ -65,7 +107,8 @@ export class UserService implements UserServiceInterface {
       crp: body.crp,
       birthdate: isoBirthdate,
       password: body.password,
-      pacientId,
+      patientId,
+      responsibleCrp: body.responsibleCrp,
       uuid: generateUuid(body.cpfCnpj), // generate a uuid
     });
     
@@ -81,18 +124,19 @@ export class UserService implements UserServiceInterface {
         email: user.email,
         birthdate: user.birthdate,
         crp: user.crp,
-        pacientId: user.pacientId
+        responsibleCrp: user.responsibleCrp,
+        patientId: user.patientId
       },
     };
   }
 
 
-  async putUser(userUuid: string, body: PutUserReqDto): Promise<GetUserResDto> {
+  async putUser(user: string, body: PutUserReqDto): Promise<GetUserResDto> {
     const salt = this.configService.get('auth.salt');
 
-    this.validateAuth(userUuid);
+    this.validateAuth(user);
 
-    const userOld = await this.userModel.findOne({ uuid: userUuid }).select('-password -cpfCnpj').exec();
+    const userOld = await this.userModel.findOne({ cpfCnpj: user }).select('-password -cpfCnpj').exec();
 
     this.validateUser(userOld);
 
@@ -103,7 +147,7 @@ export class UserService implements UserServiceInterface {
     const userNew = Object.assign({}, userOld.toObject(), body);
 
     await this.userModel.updateOne(
-        { uuid: userUuid },
+        { cpfCnpj: user },
         {
           $set: {
               address: userNew.address,
@@ -121,19 +165,20 @@ export class UserService implements UserServiceInterface {
         email: userNew.email,
         birthdate: userNew.birthdate,
         crp: userNew.crp,
-        pacientId: userNew.pacientId
+        responsibleCrp: userNew.responsibleCrp,
+        patientId: userNew.patientId
       },
     };
   }
 
-  async deleteUser(userUuid: string): Promise<DeleteUserResDto> {
-    this.validateAuth(userUuid);
+  async deleteUser(user: string): Promise<DeleteUserResDto> {
+    this.validateAuth(user);
 
-    const user = await this.userModel.findOne({ uuid: userUuid });
+    const userObject = await this.userModel.findOne({ cpfCnpj: user });
 
-    this.validateUser(user);
+    this.validateUser(userObject);
 
-    await user.deleteOne({ uuid: userUuid });
+    await userObject.deleteOne({ cpfCnpj: user });
 
     return {
       statusCode: 200,
@@ -147,8 +192,8 @@ export class UserService implements UserServiceInterface {
     }
   }
 
-  private validateAuth(userUuid: string) {
-    if (!userUuid) {
+  private validateAuth(user: string) {
+    if (!user) {
       throw new HttpException('Invalid session', HttpStatus.UNAUTHORIZED);
     }
   }
@@ -157,6 +202,13 @@ export class UserService implements UserServiceInterface {
     const existingUser = await this.userModel.findOne({ cpfCnpj }).exec();
     if (existingUser) {
       throw new HttpException('CPF/CNPJ alreay registered', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private async checkCrpExists(crp: string) {
+    const crpExists  = await this.userModel.findOne({ crp }).exec();
+    if (crpExists) {
+      throw new HttpException('CRP alreay registered', HttpStatus.BAD_REQUEST);
     }
   }
 

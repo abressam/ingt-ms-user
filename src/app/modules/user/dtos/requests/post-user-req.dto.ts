@@ -38,6 +38,11 @@ export class PostUserReqDto {
     @IsOptional()
     @IsString()
     crp: string | null;
+
+    @ApiProperty()
+    @IsOptional()
+    @IsString()
+    responsibleCrp: string | null;
   
     @ApiProperty()
     @IsString()

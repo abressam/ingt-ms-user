@@ -49,7 +49,7 @@ export class SessionService implements SessionServiceInterface {
 
     this.validateCredentials(user);
 
-    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.pacientId, secret) };
+    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.patientId, secret) };
   }
 
   private validateCredentials(user: UserDto | null) {

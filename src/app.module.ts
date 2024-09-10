@@ -23,6 +23,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(SessionMiddleware).forRoutes(
       { path: 'user/get', method: RequestMethod.GET },
+      { path: 'user/get/patients', method: RequestMethod.GET },
       { path: 'user/delete', method: RequestMethod.DELETE },
       { path: 'user/put', method: RequestMethod.PUT },
     );

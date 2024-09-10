@@ -24,11 +24,14 @@ export class User extends Document {
    @Prop()
    birthdate: string;
 
-   @Prop({ unique: true })
+   @Prop()
    crp: string | null;
 
-   @Prop({ unique: true })
-   pacientId: number | null;
+   @Prop()
+   patientId: number | null;
+
+   @Prop()
+   responsibleCrp: string | null;
 
    @Prop()
    password: string;

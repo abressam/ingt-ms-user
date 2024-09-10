@@ -4,10 +4,10 @@ import * as Crypto from 'crypto';
 export function getJsonWebToken(
   cpfCnpj: string,
   crp: string | null,
-  pacientId: number,
+  patientId: number,
   secret: Secret,
 ): string {
-  return sign({ cpfCnpj, crp, pacientId }, secret, { expiresIn: '1d' });
+  return sign({ cpfCnpj, crp, patientId }, secret, { expiresIn: '1d' });
 }
 
 export function checkJsonWebToken(
