@@ -26,6 +26,7 @@ import {
   
         req['cpfCnpj'] = jwtPayload['cpfCnpj'];
         req['crp'] = jwtPayload['crp'];
+        req['responsibleCrp'] = jwtPayload['responsibleCrp'];
         req['patientId'] = jwtPayload['patientId'];
 
         next();

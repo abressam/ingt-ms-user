@@ -44,12 +44,9 @@ export class SessionService implements SessionServiceInterface {
       }
     }
 
-    // console.log('Password Hash:', encodePassword(salt, body.password));
-    // console.log('CRP:', body.crp, 'Email:', body.email);
-
     this.validateCredentials(user);
 
-    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.patientId, secret) };
+    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.responsibleCrp, user.patientId, secret) };
   }
 
   private validateCredentials(user: UserDto | null) {
