@@ -26,8 +26,8 @@ import {
   
         req['cpfCnpj'] = jwtPayload['cpfCnpj'];
         req['crp'] = jwtPayload['crp'];
-        req['responsibleCrp'] = jwtPayload['responsibleCrp'];
         req['patientId'] = jwtPayload['patientId'];
+        req['responsibleCrp'] = jwtPayload['responsibleCrp'];
 
         next();
       } catch (error) {

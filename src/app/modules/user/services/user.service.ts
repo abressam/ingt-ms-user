@@ -28,8 +28,6 @@ export class UserService implements UserServiceInterface {
     const userObject = await this.userModel.findOne({ cpfCnpj: user }).select('-password -cpfCnpj').exec(); 
     // execute query and return a promise
 
-    // console.log('user:', user);
-
     this.validateUser(userObject);
 
     return { user: userObject };
@@ -107,7 +105,7 @@ export class UserService implements UserServiceInterface {
       crp: body.crp,
       birthdate: isoBirthdate,
       password: body.password,
-      patientId,
+      patientId: patientId,
       responsibleCrp: body.responsibleCrp,
       uuid: generateUuid(body.cpfCnpj), // generate a uuid
     });

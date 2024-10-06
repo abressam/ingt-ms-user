@@ -8,6 +8,6 @@ export class GetUsersByPatientIdResDto {
     name: string;
     email: string;
     phone: string;
-    patientId: number;
+    patientId: string;
   }>;
 }

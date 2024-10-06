@@ -46,7 +46,7 @@ export class SessionService implements SessionServiceInterface {
 
     this.validateCredentials(user);
 
-    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.responsibleCrp, user.patientId, secret) };
+    return { jwt: getJsonWebToken( user.cpfCnpj, user.crp, user.patientId, user.responsibleCrp, secret) };
   }
 
   private validateCredentials(user: UserDto | null) {

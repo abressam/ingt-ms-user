@@ -3,15 +3,20 @@ import { v5 as uuidv5 } from 'uuid';
 
 const { USER_NAMESPACE } = process.env;
 
-export function generatepatientId(cpfCnpj: string): number {
+export function generatepatientId(cpfCnpj: string): string  {
     // Create SHA-256 hash from cpfCnpj
     const hash = Crypto.createHash('sha256').update(cpfCnpj).digest('hex');
     
     // Convert hash in number
     const numericId = parseInt(hash.substring(0, 8), 16);
     
-    // Return a number with 6 digits limit
-    return numericId % 1000000;
+    const patientId = numericId % 1000000;
+
+    if (Number.isNaN(patientId)) {
+        throw new Error('Failed to generate a valid patient ID');
+    }
+
+    return patientId.toString();
 }
 
 export function generateUuid(cpfCnpj: string): string {

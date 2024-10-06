@@ -28,7 +28,7 @@ export class User extends Document {
    crp: string | null;
 
    @Prop()
-   patientId: number | null;
+   patientId: string | null;
 
    @Prop()
    responsibleCrp: string | null;

@@ -37,6 +37,6 @@ export class UserDto {
     responsibleCrp: string;
 
     @ApiProperty()
-    @IsNumber()
-    patientId: number;
+    @IsString()
+    patientId: string;
 }
